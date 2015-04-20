@@ -4,7 +4,7 @@
 		module="quickcheck_2.11"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20150413223445"
+		publication="20150414211302"
 	>
 		<description>
 		quickcheck
