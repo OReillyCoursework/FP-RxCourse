@@ -15,7 +15,7 @@ object Calculator {
         for ( 
           
           (cell,expr) <- namedExpressions; 
-          result = eval(expr.now, namedExpressions) 
+          result = eval(expr()), namedExpressions) 
         
         ) yield (cell,Var(result))
           
