@@ -12,9 +12,9 @@ object Polynomial {
   def computeSolutions(a: Signal[Double], b: Signal[Double],
       c: Signal[Double], delta: Signal[Double]): Signal[Set[Double]] = {
       
-      var set = Set[Double]
-      set += (-b() - sqrt(delta())) / (2*a())
-      set += (-b() + sqrt(delta())) / (2*a())
+      var set: Set[Double] = Set()
+      set += (-b() - Math.sqrt(delta())) / (2*a())
+      set += (-b() + Math.sqrt(delta())) / (2*a())
       Var {
         set      
       }
