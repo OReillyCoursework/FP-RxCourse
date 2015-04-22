@@ -23,7 +23,7 @@ object Calculator {
       expr match {
           
             case Literal(v: Double) => v
-            case Ref(name: String) => distinct getReferenceExpr(name, references)
+            case Ref(name: String) => getReferenceExpr(name, references)
             case Plus(a: Expr, b: Expr) => eval(a, references) + eval(b, references)
             case Minus(a: Expr, b: Expr) => eval(a, references) - eval(b, references)
             case Times(a: Expr, b: Expr) => eval(a, references) * eval(b, references)
