@@ -15,7 +15,7 @@ object Calculator {
         for ( 
           
           (cell,expr) <- namedExpressions; 
-          result = eval(expr) 
+          result = eval(expr.now, namedExpressions) 
         
         ) yield (cell,Var(result))
           
@@ -26,7 +26,7 @@ object Calculator {
       expr match {
           
             case Literal(v: Double) => v
-            case Ref(name: String) => getReferenceExpr(name, references)
+            case Ref(name: String) => eval(getReferenceExpr(name, references), references)
             case Plus(a: Expr, b: Expr) => eval(a, references) + eval(b, references)
             case Minus(a: Expr, b: Expr) => eval(a, references) - eval(b, references)
             case Times(a: Expr, b: Expr) => eval(a, references) * eval(b, references)
