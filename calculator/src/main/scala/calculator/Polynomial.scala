@@ -5,7 +5,7 @@ object Polynomial {
       c: Signal[Double]): Signal[Double] = {
       
       Var {
-        (b() * b()) - (4 * a() * c()) 
+        b() * b() - 4.0 * a() * c() 
       }      
   }
 
@@ -13,8 +13,18 @@ object Polynomial {
       c: Signal[Double], delta: Signal[Double]): Signal[Set[Double]] = {
       
       var set: Set[Double] = Set()
-      set += (-b() - Math.sqrt(delta())) / (2*a())
-      set += (-b() + Math.sqrt(delta())) / (2*a())
+      val aa = a() + a()
+      
+      if (delta < 0) {
+        
+          val re = -b() / aa
+          val im = math.sqrt(-d)/aa
+          // not doing anything with the result of complex roots
+      } else {
+        val re = if (b() < 0) (-b + math.sqrt(delta()))/aa else (-b - math.sqrt(delta()))/aa)
+        // need to add roots to set
+      }
+
       Var {
         set      
       }
