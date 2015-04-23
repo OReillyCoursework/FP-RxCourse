@@ -3,7 +3,9 @@ package calculator
 object Polynomial { 
   def computeDelta(a: Signal[Double], b: Signal[Double], c: Signal[Double]): Signal[Double] = {
 
+   Var {
         b() * b() - 4.0 * a() * c() 
+   }
 
   }
 
@@ -45,7 +47,9 @@ object Polynomial {
 
       }
 
+    Var {
         set      
+    }
 
   }
 
