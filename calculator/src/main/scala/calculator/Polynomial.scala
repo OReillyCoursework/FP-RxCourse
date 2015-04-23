@@ -15,10 +15,10 @@ object Polynomial {
       var set: Set[Double] = Set()
       val aa = a() + a()
       
-      if (delta < 0) {
+      if (delta() < 0) {
         
           val re = -b() / aa
-          val im = math.sqrt(-d)/aa
+          val im = math.sqrt(-delta())/aa
           // not doing anything with the result of complex roots
       } else {
         val re = if (b() < 0) (-b + math.sqrt(delta()))/aa else (-b - math.sqrt(delta()))/aa)
