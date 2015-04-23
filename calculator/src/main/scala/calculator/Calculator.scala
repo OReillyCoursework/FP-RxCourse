@@ -18,7 +18,7 @@ object Calculator {
        namedExpressions foreach {
          case (cell, expr) => {
            currentCell = cell
-           map += (cell -> Var(eval(expr(), namedExpressions)))
+           map += (cell -> Var(eval(expr(), namedExpressions, currentCell)))
          }
        }  
 
@@ -26,16 +26,16 @@ object Calculator {
 
       }
 
-  def eval(expr: Expr, references: Map[String, Signal[Expr]]): Double = {
+  def eval(expr: Expr, references: Map[String, Signal[Expr]], currentCell: String): Double = {
       
       expr match {
           
             case Literal(v: Double) => v
-            case Ref(name: String) if (name != currentCell) => eval(getReferenceExpr(name, references), references)
-            case Plus(a: Expr, b: Expr) => eval(a, references) + eval(b, references)
-            case Minus(a: Expr, b: Expr) => eval(a, references) - eval(b, references)
-            case Times(a: Expr, b: Expr) => eval(a, references) * eval(b, references)
-            case Divide(a: Expr, b: Expr) => eval(a, references) / eval(b, references)
+            case Ref(name: String) if (name != currentCell) => eval(getReferenceExpr(name, references), references, currentCell)
+            case Plus(a: Expr, b: Expr) => eval(a, references, currentCell) + eval(b, references, currentCell)
+            case Minus(a: Expr, b: Expr) => eval(a, references, currentCell) - eval(b, references, currentCell)
+            case Times(a: Expr, b: Expr) => eval(a, references, currentCell) * eval(b, references, currentCell)
+            case Divide(a: Expr, b: Expr) => eval(a, references, currentCell) / eval(b, references, currentCell)
             case _ => Double.NaN
       }
   }  
