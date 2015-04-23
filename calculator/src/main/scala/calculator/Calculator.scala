@@ -13,9 +13,13 @@ object Calculator {
       namedExpressions: Map[String, Signal[Expr]]): Map[String, Signal[Double]] = {
       
       var map: Map[String, Signal[Double]] = Map()
-
+      var currentCell = ""
+      
        namedExpressions foreach {
-         case (cell, expr) => map += (cell -> Var(eval(expr(), namedExpressions)))
+         case (cell, expr) => {
+           currentCell = cell
+           map += (cell -> Var(eval(expr(), namedExpressions)))
+         }
        }  
 
       map
@@ -27,7 +31,7 @@ object Calculator {
       expr match {
           
             case Literal(v: Double) => v
-            case Ref(name: String) => eval(getReferenceExpr(name, references), references)
+            case Ref(name: String) if (name != currentCell) => eval(getReferenceExpr(name, references), references)
             case Plus(a: Expr, b: Expr) => eval(a, references) + eval(b, references)
             case Minus(a: Expr, b: Expr) => eval(a, references) - eval(b, references)
             case Times(a: Expr, b: Expr) => eval(a, references) * eval(b, references)
