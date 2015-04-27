@@ -9,16 +9,15 @@ final case class Times(a: Expr, b: Expr) extends Expr
 final case class Divide(a: Expr, b: Expr) extends Expr
 
 object Calculator {
+
+
   def computeValues(
       namedExpressions: Map[String, Signal[Expr]]): Map[String, Signal[Double]] = {
       
       var map: Map[String, Signal[Double]] = Map()
-      var currentCell = ""
-      
-       namedExpressions foreach {
+      namedExpressions foreach {
          case (cell, expr) => {
-           currentCell = cell
-           map += (cell -> Var(eval(expr(), namedExpressions, currentCell)))
+          Signal { map += (cell -> Var(eval(expr(), namedExpressions)))}
          }
        }  
 
@@ -26,18 +25,25 @@ object Calculator {
 
       }
 
-  def eval(expr: Expr, references: Map[String, Signal[Expr]], currentCell: String): Double = {
+  def eval(expr: Expr, references: Map[String, Signal[Expr]]): Double = {
       
       expr match {
           
             case Literal(v: Double) => v
-            case Ref(name: String) if (name != currentCell) => eval(getReferenceExpr(name, references), references, currentCell)
-            case Plus(a: Expr, b: Expr) => eval(a, references, currentCell) + eval(b, references, currentCell)
-            case Minus(a: Expr, b: Expr) => eval(a, references, currentCell) - eval(b, references, currentCell)
-            case Times(a: Expr, b: Expr) => eval(a, references, currentCell) * eval(b, references, currentCell)
-            case Divide(a: Expr, b: Expr) => eval(a, references, currentCell) / eval(b, references, currentCell)
+            case Ref(name: String)  => {
+              val currExpr = references.get(name)
+              if (expr != currExpr)
+                eval(getReferenceExpr(name, references), references)
+              else Double.NaN 
+            }
+            case Plus(a: Expr, b: Expr) => eval(a, references) + eval(b, references)
+            case Minus(a: Expr, b: Expr) => eval(a, references) - eval(b, references)
+            case Times(a: Expr, b: Expr) => eval(a, references) * eval(b, references)
+            case Divide(a: Expr, b: Expr) => eval(a, references) / eval(b, references)
             case _ => Double.NaN
       }
+
+      
   }  
   
 

@@ -3,56 +3,22 @@ package calculator
 object Polynomial { 
   def computeDelta(a: Signal[Double], b: Signal[Double], c: Signal[Double]): Signal[Double] = {
 
-   Var {
-        b() * b() - 4.0 * a() * c() 
+   Signal {
+        b()  
    }
 
   }
 
  def computeSolutions(a: Signal[Double], b: Signal[Double], c: Signal[Double], delta: Signal[Double]): Signal[Set[Double]] = {
 
-      var set: Set[Double] = Set()
-
-      val aa = a() + a()
-
-      if (delta() < 0) {
-
-          val re = -b() / aa
-
-          val im = math.sqrt(-delta())/aa
-
-          // not doing anything with the result of complex roots
-
-      } else if (delta() > 0) {
-
-        
-        var root1 =  (-b() + math.sqrt(delta()))/aa  
-        var root2 =  (-b() - math.sqrt(delta()))/aa  
-        if (root1 != root2) {
-            set += root1
-            set += root2
-        } else 
-            set += root1
-      
-
-      } else {  // delta is zero
-        
-        var root1 =  (-b() + math.sqrt(delta()))/aa  
-        var root2 =  (-b() - math.sqrt(delta()))/aa  
-        if (root1 != root2) {
-            set += root1
-            set += root2
-        } else 
-            set += root1
-
+    Var {    
+          delta() match {
+              case delta if delta > 0 => Set(((-b() + math.sqrt(delta))/a()),((-b() - math.sqrt(delta))/a()))  
+              case delta if delta == 0 => Set(((-b() + math.sqrt(delta))/a()),((-b() - math.sqrt(delta))/a()))  
+              case _ => Set(0.0) // delta less than zero which has no roots
+          }
       }
-
-    Var {
-        set      
-    }
-
-  }
-
+  }    
 }
 
 
