@@ -29,7 +29,12 @@ trait NodeScala {
    *  @param token        the cancellation token 
    *  @param body         the response to write back
    */
-  private def respond(exchange: Exchange, token: CancellationToken, response: Response): Unit = ???
+  private def respond(exchange: Exchange, token: CancellationToken, response: Response): Unit = {
+    while (token.nonCancelled) {
+      // TODO put your computation here
+    }
+    // return a result
+  }
 
   /** A server:
    *  1) creates and starts an http listener
