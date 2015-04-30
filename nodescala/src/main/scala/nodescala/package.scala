@@ -60,8 +60,9 @@ package object nodescala {
     /** Returns a future with a unit value that is completed after time `t`.
      */
     def delay(t: Duration): Future[Unit] = 
+      val p = Promise[T]()
       val f = Future {
-        // TODO do I need something here
+        p complete
       }
       Await.result(f,t)
 
