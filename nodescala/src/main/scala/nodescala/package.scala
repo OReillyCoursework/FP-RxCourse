@@ -38,7 +38,9 @@ package object nodescala {
      *  The values in the list are in the same order as corresponding futures `fs`.
      *  If any of the futures `fs` fails, the resulting future also fails.
      */
-    def all[T](fs: List[Future[T]]): Future[List[T]] = ???
+    def all[T](fs: List[Future[T]]): Future[List[T]] = {
+      // see the lecture on list of future turned to future of list
+    }
     /** Given a list of futures `fs`, returns the future holding the value of the future from `fs` that completed first.
      *  If the first completing future in `fs` fails, then the result is failed as well.
      *
@@ -48,11 +50,20 @@ package object nodescala {
      *
      *  may return a `Future` succeeded with `1`, `2` or failed with an `Exception`.
      */
-    def any[T](fs: List[Future[T]]): Future[T] = ???
+    def any[T](fs: List[Future[T]]): Future[T] = {
+        val p = Promise[T]()
+        val f = p.future
+        // Need to pattern match on success or failure
+        
+    }
 
     /** Returns a future with a unit value that is completed after time `t`.
      */
-    def delay(t: Duration): Future[Unit] = ???
+    def delay(t: Duration): Future[Unit] = 
+      val f = Future {
+        // TODO do I need something here
+      }
+      Await.result(f,t)
 
     /** Completes this future with user input.
      */
