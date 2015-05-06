@@ -37,7 +37,7 @@ trait WikipediaApi {
      *
      * E.g. `"erik", "erik meijer", "martin` should become `"erik", "erik_meijer", "martin"`
      */
-    def sanitized: Observable[String] = ???
+    def sanitized: Observable[String] = obs.map(str => str.replaceAll(" ", "_"))
 
   }
 
@@ -48,7 +48,26 @@ trait WikipediaApi {
      *
      * E.g. `1, 2, 3, !Exception!` should become `Success(1), Success(2), Success(3), Failure(Exception), !TerminateStream!`
      */
-    def recovered: Observable[Try[T]] = ???
+    def recovered: Observable[Try[T]] = Observable(s => {
+        obs.map(t => {
+          //s.onErrorReturn(Failure(t))
+          s.onNext(Success(t))
+        })
+       s.onCompleted()
+     }) 
+      
+      
+      
+      //Observable { observer =>
+      //obs.subscribe(
+      //  t => observer.onNext(Success(t)),
+      //  { error: Throwable => observer.onNext(Failure(error))
+      //  observer.onCompleted 
+      //  },
+      //  () => observer.onCompleted
+      //)
+    // }
+     
 
     /** Emits the events from the `obs` observable, until `totalSec` seconds have elapsed.
      *
