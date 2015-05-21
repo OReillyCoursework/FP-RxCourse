@@ -70,7 +70,7 @@ class BinaryTreeSet extends Actor with Stash {
       case op:Operation => root ! op
 
       case GC => {
-        val newroot = context.actorOf(BinaryTreeNode.props(0, initiallyRemoved = true))
+        var newroot = context.actorOf(BinaryTreeNode.props(0, initiallyRemoved = true))
         root ! CopyTo(newroot)
         context become garbageCollecting(newroot)
       }
@@ -86,7 +86,7 @@ class BinaryTreeSet extends Actor with Stash {
 
 
     case op: Operation => stash() 
-
+    case GC =>
     case CopyFinished => {
       
       root ! PoisonPill
@@ -136,16 +136,16 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
         subtrees.get(Left) match {
           case Some(left) => left ! insert 
           case None => {
-            subtrees = subtrees + ((Left, leftnode))  
+            subtrees = subtrees + (Left -> context.actorOf(BinaryTreeNode.props(elm, initiallyRemoved = false))) 
             requester ! OperationFinished(id)
           }
         }
 
         } else if (elm > elem) {
           subtrees.get(Right) match {
-            case Some(Right) => right ! insert
+            case Some(right) => right ! insert
             case None => {
-              subtrees = subtrees + ((Right, rightnode))
+              subtrees = subtrees + (Right -> context.actorOf(BinaryTreeNode.props(elm, initiallyRemoved = false)))
               requester ! OperationFinished(id)  
             }
           }
@@ -185,18 +185,20 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
     }
 
     case CopyTo(treeNode) => {
-      val nodes = Set.empty[ActorRef] ++ subtrees.values
+      val nodes = subtrees.values.toSet
       removed match {
         case true if nodes.isEmpty => context.parent ! CopyFinished
         case _ => {
-              if (!removed) treeNode ! Insert(self, 100, elem)
               nodes foreach {_ ! CopyTo(treeNode) }
               context become copying(nodes, removed)
+              if (!removed) treeNode ! Insert(self, elem, elem)
+              else self ! OperationFinished(elem) 
             }
+
           }
         }
 
-      
+   case CopyFinished =>  
 
   }
 
@@ -220,7 +222,7 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
         context.parent ! CopyFinished
         context become normal
       } else {
-        context become copying(expected, false)
+        context become copying(expected, true)
       }
     }
    }
