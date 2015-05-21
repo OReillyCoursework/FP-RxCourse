@@ -70,7 +70,7 @@ class BinaryTreeSet extends Actor with Stash {
       case op:Operation => root ! op
 
       case GC => {
-        val newroot = createRoot
+        val newroot = context.actorOf(BinaryTreeNode.props(0, initiallyRemoved = true))
         root ! CopyTo(newroot)
         context become garbageCollecting(newroot)
       }
@@ -135,14 +135,14 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
       } else if (elm < elem) {
         subtrees.get(Left) match {
           case Some(left) => {
-            val leftnode = context.actorOf(Props(classOf[BinaryTreeNode], elm, false))
+            val leftnode = context.actorOf(BinaryTreeNode.props(elm, false))
             subtrees = subtrees + ((Left, leftnode))  
             requester ! OperationFinished(id)
           }
         }
 
         } else if (elm > elem) {
-          val rightnode = context.actorOf(Props(classOf[BinaryTreeNode], elm, false))
+          val rightnode = context.actorOf(BinaryTreeNode.props(elm, false))
           subtrees = subtrees + ((Right, rightnode))
           requester ! OperationFinished(id)
       }
