@@ -54,13 +54,46 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
 
   /* TODO Behavior for  the leader role. */
   val leader: Receive = {
-    case _ =>
+    
+    case Replicated(key, id) => {
+        
+
+    }
+
+    case Insert(key, value, id) => {
+      kv += key -> value
+        sender ! OperationAck(id)
+    }
+    case Remove(key, id) => {
+      kv -= key      
+      sender ! OperationAck(id)
+    }
+    case Get(key, id) => {
+      sender ! GetResult(key, kv.get(key), id)
+    }
+       
   }
 
   /* TODO Behavior for the replica role. */
   val replica: Receive = {
-    case _ =>
+    
+    case Snapshot(key, value, seq) => {
+      sender ! SnapshotAck(key, seq)
+    }
+    case Replicate(key, valueOption, id) => {
+      valueOption match {
+        case Some(value) => kv += key -> value
+        case None        => kv -= key
+      }
+      sender ! Replicated(key, id)
+    }
+    case Get(key, id) => {
+      sender ! GetResult(key, kv.get(key), id)
+    }
+
   }
+  
+  arbiter ! Join
 
 }
 
