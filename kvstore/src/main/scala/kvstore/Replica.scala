@@ -12,6 +12,7 @@ import akka.actor.PoisonPill
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy
 import akka.util.Timeout
+import akka.event.Logging
 
 object Replica {
   sealed trait Operation {
@@ -40,6 +41,8 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
    * The contents of this actor is just a suggestion, you can implement it in any way you like.
    */
   
+  val log = Logging(context.system, this)
+  
   var kv = Map.empty[String, String]
   // a map from secondary replicas to replicators
   var secondaries = Map.empty[ActorRef, ActorRef]
@@ -56,7 +59,7 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   val leader: Receive = {
     
     case Replicated(key, id) => {
-        
+      log.info(s"$key with $id was replicated")    
 
     }
 
