@@ -19,42 +19,48 @@ class Replicator(val replica: ActorRef) extends Actor {
   import Replicator._
   import Replica._
   import context.dispatcher
+  import scala.collection.mutable.Queue
   
   /*
    * The contents of this actor is just a suggestion, you can implement it in any way you like.
    */
 
-  // map from sequence number to pair of sender and request
   var acks = Map.empty[Long, (ActorRef, Replicate)]
-  // a sequence of not-yet-sent snapshots (you can disregard this if not implementing batching)
-  var pending = Vector.empty[Snapshot]
-  
+
   var _seqCounter = 0L
+  
   def nextSeq = {
     val ret = _seqCounter
     _seqCounter += 1
     ret
   }
 
+  var expected = 0L
+
   
   /* TODO Behavior for the Replicator. */
   def receive: Receive = {
-    
-    case Replicate(key, valueOption, id) => {
-      self ! Replicate(key, valueOption, id)
+
+    case repl @ Replicate(key, valueoption, id) => {
+      val seq = nextSeq
+      acks += seq -> (sender, repl)
+      replica ! Snapshot(key, valueoption, id)  
+      
     }
+
     case SnapshotAck(key, seq) => {
-      acks.get(seq) match {
-        case Some(ack) => {
-          acks -= seq
-          ack._1 ! Replicated(ack._2.key, ack._2.id)
-        }
-        case None => {
-          // need a logger here
+      acks.get(seq)  
+      .map{
+        pair => {
+          val (leader, repl) = pair 
+          replica ! Replicated(key, repl.id)
         }
       }
+      acks -= seq
     }
 
   }
+
+  
 
 }
