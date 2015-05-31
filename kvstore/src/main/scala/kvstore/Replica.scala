@@ -110,10 +110,9 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
              case _ =>
            }
       }
-
     }
 
-    case Persisted(key, id) => {
+   case Persisted(key, id) => {
       persistlist.get(id)
       .map {
         repl => {
@@ -135,8 +134,13 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
            }
       }
     }
-       
+ 
+    
   }
+  
+  
+
+
 
   /* TODO Behavior for the replica role. */
   val replica: Receive = { 
@@ -172,7 +176,15 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
        persistlist -= id
      }
   
-  }
+  
+
+   case PersistAgain => {
+     persistlist.foreach( repl => {
+       val (_, (_, p, _)) = repl
+       p.map(persistence ! _)
+     })
+   }
+ }
   
   arbiter ! Join
   

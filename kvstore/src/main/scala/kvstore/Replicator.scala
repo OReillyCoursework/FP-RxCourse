@@ -12,6 +12,8 @@ object Replicator {
   case class Snapshot(key: String, valueOption: Option[String], seq: Long)
   case class SnapshotAck(key: String, seq: Long)
 
+  case object RetrySnap
+
   def props(replica: ActorRef): Props = Props(new Replicator(replica))
 }
 
@@ -25,7 +27,10 @@ class Replicator(val replica: ActorRef) extends Actor {
    * The contents of this actor is just a suggestion, you can implement it in any way you like.
    */
 
+  context.system.scheduler.schedule(100.millis, 100.millis, context.self, RetrySnap)
+
   var acks = Map.empty[Long, (ActorRef, Replicate)]
+  var pending = Vector.empty[Snapshot]
 
   var _seqCounter = 0L
   
@@ -35,7 +40,6 @@ class Replicator(val replica: ActorRef) extends Actor {
     ret
   }
 
-  var expected = 0L
 
   
   /* TODO Behavior for the Replicator. */
@@ -53,12 +57,18 @@ class Replicator(val replica: ActorRef) extends Actor {
       .map{
         pair => {
           val (leader, repl) = pair 
-          replica ! Replicated(key, repl.id)
+          leader ! Replicated(key, repl.id)
         }
       }
       acks -= seq
     }
 
+    case RetrySnap => {
+      acks.foreach( repl => {
+          val (seq, (primary, replicate)) = repl
+          replica ! Snapshot(replicate.key, replicate.valueOption, seq)  
+      })
+    }
   }
 
   
